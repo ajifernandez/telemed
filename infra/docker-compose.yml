@@ -1,0 +1,82 @@
+version: '3.8'
+
+services:
+  # Backend: FastAPI
+  backend:
+    build:
+      context: ../backend
+      dockerfile: Dockerfile
+    container_name: telemed_backend
+    restart: always
+    environment:
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      - SECRET_KEY=${SECRET_KEY}
+      - ALGORITHM=HS256
+      - ACCESS_TOKEN_EXPIRE_MINUTES=30
+      - ENCRYPTION_KEY=${ENCRYPTION_KEY}
+      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
+      - STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET}
+      - SENDGRID_API_KEY=${SENDGRID_API_KEY}
+      - SENDGRID_FROM_EMAIL=${SENDGRID_FROM_EMAIL}
+      - JITSI_DOMAIN=${JITSI_DOMAIN}
+    depends_on:
+      - db
+    networks:
+      - telemed_net
+
+  # Frontend: Next.js
+  frontend:
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile
+    container_name: telemed_frontend
+    restart: always
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost/api
+      - NEXT_PUBLIC_JITSI_DOMAIN=${JITSI_DOMAIN}
+      - NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=${STRIPE_PUBLISHABLE_KEY}
+    depends_on:
+      - backend
+    networks:
+      - telemed_net
+
+  # Database: PostgreSQL
+  db:
+    image: postgres:15-alpine
+    container_name: telemed_db
+    restart: always
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - telemed_net
+
+  # Nginx: Reverse Proxy
+  nginx:
+    image: nginx:alpine
+    container_name: telemed_nginx
+    restart: always
+    ports:
+      - "8080:80"
+      - "8443:443"
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d
+      - ./nginx/certbot/conf:/etc/letsencrypt
+      - ./nginx/certbot/www:/var/www/certbot
+    depends_on:
+      - backend
+      - frontend
+    networks:
+      - telemed_net
+
+volumes:
+  postgres_data:
+
+networks:
+  telemed_net:
+    driver: bridge
