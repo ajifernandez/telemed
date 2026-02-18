@@ -1,6 +1,6 @@
 'use client'
 
-import Link from 'next/link'
+
 import { useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 
@@ -244,9 +244,7 @@ export default function MedicalProfessionalsAdminPage() {
             <p className="text-sm text-gray-500">Alta de médicos (mock)</p>
           </div>
           <div className="flex items-center gap-4">
-            <Link href="/booking" className="text-sm text-primary hover:underline">
-              Reserva
-            </Link>
+
             <button onClick={logout} className="text-sm text-gray-600 hover:text-gray-900">
               Cerrar sesión
             </button>

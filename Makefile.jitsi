@@ -1,0 +1,5 @@
+jitsi-logs:
+	docker compose -f $(COMPOSE_FILE) logs -f jitsi-web prosody jicofo jvb
+
+jitsi-restart:
+	docker compose -f $(COMPOSE_FILE) restart jitsi-web prosody jicofo jvb

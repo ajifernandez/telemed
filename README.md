@@ -37,7 +37,7 @@ Un sistema completo de gestión de citas médicas con consultas por video, dise�
 
 ```bash
 # 1. Clonar repositorio
-git clone https://github.com/yourusername/telemed.git
+git clone https://github.com/ajifernandez/telemed.git
 cd telemed
 
 # 2. Generar secrets y archivo .env

@@ -26,6 +26,10 @@ help:
 	@echo "  make debug-frontend  - Run frontend in dev mode"
 	@echo "  make debug-db        - Start only the database container"
 	@echo "  make multidebug      - Start db + run backend debug + frontend dev"
+	@echo ""
+	@echo "Jitsi Meet commands:"
+	@echo "  make jitsi-logs      - View Jitsi Meet service logs"
+	@echo "  make jitsi-restart   - Restart Jitsi Meet services"
 
 setup:
 	@echo "Generating .env file..."
@@ -37,6 +41,14 @@ setup:
 		echo "ENCRYPTION_KEY=$$(python3 -c 'from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())' 2>/dev/null || echo 'CHANGE_ME_INSTALL_CRYPTOGRAPHY')" >> .env; \
 		echo "STRIPE_SECRET_KEY=sk_test_..." >> .env; \
 		echo "SENDGRID_API_KEY=SG...." >> .env; \
+		echo "" >> .env; \
+		echo "# Jitsi Meet Configuration (Local Development)" >> .env; \
+		echo "JITSI_DOMAIN=localhost:8888" >> .env; \
+		echo "JICOFO_COMPONENT_SECRET=$$(openssl rand -hex 16)" >> .env; \
+		echo "JICOFO_AUTH_PASSWORD=$$(openssl rand -hex 16)" >> .env; \
+		echo "JVB_AUTH_PASSWORD=$$(openssl rand -hex 16)" >> .env; \
+		echo "JIBRI_RECORDER_PASSWORD=$$(openssl rand -hex 16)" >> .env; \
+		echo "JIBRI_XMPP_PASSWORD=$$(openssl rand -hex 16)" >> .env; \
 		echo ".env file created with generated secrets."; \
 	else \
 		echo ".env already exists. Skipping generation."; \

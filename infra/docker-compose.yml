@@ -74,8 +74,96 @@ services:
     networks:
       - telemed_net
 
+  # Jitsi Meet Services
+  jitsi-web:
+    image: jitsi/web:stable-8960
+    container_name: telemed_jitsi_web
+    restart: always
+    ports:
+      - "8888:80"
+    environment:
+      - ENABLE_AUTH=0
+      - ENABLE_GUESTS=1
+      - ENABLE_LETSENCRYPT=0
+      - ENABLE_HTTP_REDIRECT=0
+      - ENABLE_HSTS=0
+      - DISABLE_HTTPS=1
+      - JICOFO_COMPONENT_SECRET=${JICOFO_COMPONENT_SECRET}
+      - JICOFO_AUTH_USER=focus
+      - JICOFO_AUTH_PASSWORD=${JICOFO_AUTH_PASSWORD}
+      - JVB_AUTH_USER=jvb
+      - JVB_AUTH_PASSWORD=${JVB_AUTH_PASSWORD}
+      - JIBRI_RECORDER_USER=recorder
+      - JIBRI_RECORDER_PASSWORD=${JIBRI_RECORDER_PASSWORD}
+      - JIBRI_XMPP_USER=jibri
+      - JIBRI_XMPP_PASSWORD=${JIBRI_XMPP_PASSWORD}
+      - TZ=Europe/Madrid
+      - PUBLIC_URL=http://localhost:8888
+    depends_on:
+      - prosody
+    networks:
+      - telemed_net
+
+  prosody:
+    image: jitsi/prosody:stable-8960
+    container_name: telemed_prosody
+    restart: always
+    environment:
+      - ENABLE_AUTH=0
+      - ENABLE_GUESTS=1
+      - JICOFO_COMPONENT_SECRET=${JICOFO_COMPONENT_SECRET}
+      - JICOFO_AUTH_USER=focus
+      - JICOFO_AUTH_PASSWORD=${JICOFO_AUTH_PASSWORD}
+      - JVB_AUTH_USER=jvb
+      - JVB_AUTH_PASSWORD=${JVB_AUTH_PASSWORD}
+      - JIBRI_RECORDER_USER=recorder
+      - JIBRI_RECORDER_PASSWORD=${JIBRI_RECORDER_PASSWORD}
+      - JIBRI_XMPP_USER=jibri
+      - JIBRI_XMPP_PASSWORD=${JIBRI_XMPP_PASSWORD}
+      - TZ=Europe/Madrid
+    networks:
+      - telemed_net
+    volumes:
+      - prosody_config:/config
+      - prosody_plugins:/prosody-plugins-custom
+
+  jicofo:
+    image: jitsi/jicofo:stable-8960
+    container_name: telemed_jicofo
+    restart: always
+    environment:
+      - JICOFO_COMPONENT_SECRET=${JICOFO_COMPONENT_SECRET}
+      - JICOFO_AUTH_USER=focus
+      - JICOFO_AUTH_PASSWORD=${JICOFO_AUTH_PASSWORD}
+      - TZ=Europe/Madrid
+    depends_on:
+      - prosody
+    networks:
+      - telemed_net
+
+  jvb:
+    image: jitsi/jvb:stable-8960
+    container_name: telemed_jvb
+    restart: always
+    ports:
+      - "10000:10000/udp"
+      - "3478:3478/udp"
+    environment:
+      - JVB_AUTH_USER=jvb
+      - JVB_AUTH_PASSWORD=${JVB_AUTH_PASSWORD}
+      - JICOFO_AUTH_USER=focus
+      - JVB_STUN_SERVERS=meet-jit-si-turnrelay.jitsi.net:443
+      - JVB_PORT=10000
+      - TZ=Europe/Madrid
+    depends_on:
+      - prosody
+    networks:
+      - telemed_net
+
 volumes:
   postgres_data:
+  prosody_config:
+  prosody_plugins:
 
 networks:
   telemed_net:
