@@ -70,6 +70,8 @@ telemedicine-app/
   status = 200
 ```
 
+###- **Dra. Beatriz Landing Page**: [beatriztumedicadefamilia.es](https://www.beatriztumedicadefamilia.es/)
+
 ### DNS Configuration
 ```
 A beatriztumedicadefamilia.com -> Netlify IP
